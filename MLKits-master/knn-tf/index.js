@@ -3,9 +3,14 @@ const tf = require('@tensorflow/tfjs');
 const loadCSV = require('./load-csv');
 
 const knn = (features, labels, predictionPoint, k) => {
+  const { mean, variance } = tf.moments(features, 0);
+
+  const scaledPrediction = predictionPoint.sub(mean).div(variance.pow(0.5));
+  const scaledFeatures = features.sub(mean).div(variance.pow(0.5));
+
   return (
-    features
-      .sub(predictionPoint)
+    scaledFeatures
+      .sub(scaledPrediction)
       .pow(2)
       .sum(1)
       .pow(0.5)
@@ -21,10 +26,13 @@ const knn = (features, labels, predictionPoint, k) => {
 let { features, labels, testFeatures, testLabels } = loadCSV('kc_house_data.csv', {
   shuffle: true,
   splitTest: 10,
-  dataColumns: ['lat', 'long'],
+  dataColumns: ['lat', 'long', 'sqft_lot', 'sqft_living'],
   labelColumns: ['price'],
 });
 
-const result = knn(tf.tensor(features), tf.tensor(labels), tf.tensor(testFeatures[0]), 10);
+testFeatures.map((testFeature, i) => {
+  const result = knn(tf.tensor(features), tf.tensor(labels), tf.tensor(testFeature), 10);
+  const err = (testLabels[i][0] - result) / testLabels[i][0];
 
-console.log(result, testLabels[0][0], 'Guess');
+  console.log(err * 100);
+});
