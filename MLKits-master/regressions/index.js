@@ -16,6 +16,7 @@ const regression = new LinearRegression(features, labels, {
   iterations: 100,
 });
 
+// regression.features.print();
 regression.train();
 
 const r2 = regression.test(testFeatures, testLabels);
