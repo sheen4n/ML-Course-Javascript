@@ -4,8 +4,6 @@ const plot = require('node-remote-plot');
 const loadCSV = require('../load-csv');
 const LogisticRegression = require('./logistic-regression');
 
-// const LogisticRegression = require('./logistic-regression');
-
 let { features, labels, testFeatures, testLabels } = loadCSV('./data/cars.csv', {
   shuffle: true,
   splitTest: 50,
