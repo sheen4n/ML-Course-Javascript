@@ -22,6 +22,8 @@ const regression = new LogisticRegression(features, labels, {
 
 regression.train();
 
+// regression.predict(testFeatures).print();
+
 plot({
   x: regression.costHistory.reverse(),
 });

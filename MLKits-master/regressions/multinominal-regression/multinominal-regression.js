@@ -1,6 +1,6 @@
 const tf = require('@tensorflow/tfjs');
 
-class LogisticRegression {
+class MultinominalRegression {
   constructor(features, labels, options) {
     this.isInitialized = false;
 
@@ -8,7 +8,7 @@ class LogisticRegression {
     this.costHistory = [];
     this.features = this.processFeatures(features);
 
-    this.weights = tf.zeros([this.features.shape[1], 1]);
+    this.weights = tf.zeros([this.features.shape[1], this.labels.shape[1]]);
 
     this.options = Object.assign(
       {
@@ -23,8 +23,8 @@ class LogisticRegression {
 
   gradientDescent(features, labels) {
     const currentGuesses = features.matMul(this.weights);
-    const sigmoidGuesses = currentGuesses.sigmoid();
-    const differences = sigmoidGuesses.sub(labels);
+    const softmaxGuesses = currentGuesses.softmax();
+    const differences = softmaxGuesses.sub(labels);
     const slopes = features.transpose().matMul(differences).div(features.shape[0]);
 
     this.weights = this.weights.sub(slopes.mul(this.options.learningRate));
@@ -47,21 +47,15 @@ class LogisticRegression {
   }
 
   predict(observations) {
-    return this.processFeatures(observations)
-      .matMul(this.weights)
-      .sigmoid()
-      .greater(this.options.decisionBoundary)
-      .cast('float32');
+    return this.processFeatures(observations).matMul(this.weights).softmax().argMax(1);
   }
 
   test(testFeatures, testLabels) {
     const predictions = this.predict(testFeatures);
-    testLabels = tf.tensor(testLabels);
-    const incorrect = predictions.sub(testLabels).abs().sum().get();
-    const totalCount = testLabels.shape[0];
-    const correctCount = totalCount - incorrect;
+    testLabels = tf.tensor(testLabels).argMax(1);
+    const incorrect = predictions.notEqual(testLabels).sum().get();
 
-    return correctCount / totalCount;
+    return (predictions.shape[0] - incorrect) / predictions.shape[0];
   }
 
   generateMeanAndVariance(features) {
@@ -109,4 +103,4 @@ class LogisticRegression {
   }
 }
 
-module.exports = LogisticRegression;
+module.exports = MultinominalRegression;
