@@ -61,7 +61,7 @@ function loadCSV(
       features: data.slice(0, testSize),
       labels: labels.slice(0, testSize),
       testFeatures: data.slice(testSize),
-      testLabels: data.slice(testSize),
+      testLabels: labels.slice(testSize),
     };
   } else {
     return {
