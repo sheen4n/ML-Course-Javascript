@@ -4,27 +4,30 @@ const MultinominalRegression = require('./multinominal-regression');
 const mnist = require('mnist-data');
 
 const n = 10;
-const max = 1000;
-const mnistData = mnist.training(0, max);
-const features = mnistData.images.values.map((number) => number.flat());
-const encodedLabels = mnistData.labels.values.map((v) =>
-  Array.from(Array(n), (_, i) => (i === v ? 1 : 0)),
+
+const generateFeaturesAndLabels = (size) => {
+  const mnistData = mnist.training(0, size);
+  const features = mnistData.images.values.map((pixels) => pixels.flat());
+  const encodedLabels = mnistData.labels.values.map((v) =>
+    Array.from(Array(n), (_, i) => (i === v ? 1 : 0)),
+  );
+  return { features, labels: encodedLabels };
+};
+
+const featureSetSize = 60000;
+const { features, labels } = generateFeaturesAndLabels(featureSetSize);
+
+const testingSetSize = 20000;
+const { features: testFeatures, labels: testEncodedLabels } = generateFeaturesAndLabels(
+  testingSetSize,
 );
 
-const regression = new MultinominalRegression(features, encodedLabels, {
+const regression = new MultinominalRegression(features, labels, {
   learningRate: 1,
-  iterations: 5,
-  batchSize: 100,
+  iterations: 40,
+  batchSize: 50,
 });
-
 regression.train();
-
-const testingSize = 100;
-const testMnistData = mnist.testing(0, testingSize);
-const testFeatures = testMnistData.images.values.map((number) => number.flat());
-const testEncodedLabels = testMnistData.labels.values.map((v) =>
-  Array.from(Array(n), (_, i) => (i === v ? 1 : 0)),
-);
 
 const accuracy = regression.test(testFeatures, testEncodedLabels);
 console.log(accuracy);
