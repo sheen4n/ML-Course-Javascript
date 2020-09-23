@@ -55,13 +55,13 @@ function loadCSV(
   }
 
   if (splitTest) {
-    const testSize = _.isNumber(splitTest) ? splitTest : Math.floor(data.length / 2);
+    const trainingSize = _.isNumber(splitTest) ? splitTest : Math.floor(data.length / 2);
 
     return {
-      features: data.slice(0, testSize),
-      labels: labels.slice(0, testSize),
-      testFeatures: data.slice(testSize),
-      testLabels: labels.slice(testSize),
+      features: data.slice(0, trainingSize),
+      labels: labels.slice(0, trainingSize),
+      testFeatures: data.slice(trainingSize),
+      testLabels: labels.slice(trainingSize),
     };
   } else {
     return {
